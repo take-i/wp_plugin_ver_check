@@ -1,17 +1,48 @@
-# wp_plugin_ver_check
+# WP Plugin Version Checker
 
-- This plug -in checks the plug -in version of the WordPress and creates a list if it is officially.
-- このプラグインは、ワードプレスのプラグイン・バージョンをチェックして公式にあれば一覧表を作成します。
+WP Plugin Version Checker is a command-line script written in PHP that retrieves information about installed WordPress plugins and performs version checking and update checks. It uses the WP-CLI tool to retrieve the plugin list and fetches additional plugin details from the WordPress API.
 
-# 引数のオプション
+## Installation
 
-```
- Usage: script.php [-h] [-c]
-  -h  Show help information
-  -c Perform version check and update check
-```
+1. Clone the repository or download the script.
+2. Make sure you have PHP installed on your system.
+3. Install WP-CLI tool if you haven't already (`https://wp-cli.org/`).
+4. Make the script executable: `chmod +x wppvc`.
+
+## Usage
+
+./wppvc [options]
+
+Options:
+- `-h`: Show help information.
+- `-u`: Perform version check and update check.
+- `-v`: Show plugin information in a specific format. If no other option is specified, this behavior is applied by default.
+
+## Examples
+
+1. Show plugin information in a specific format:
+
+./wppvc -v
+
+2. Perform version check and update check:
+
+./wppvc -u
+
+3. Show help information:
+
+./wppvc -h
+
+## License
+
+This project is licensed under the [GPLv3 License](LICENSE).
+
+
+
+
 
 ## Sample
+
+- wppvc -u
 
 | No. | 更新対象 | name | status | update | version | 最新Ver | WP Tested | PHP ver | WP公式 | WP公式URL | 備考 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -21,3 +52,12 @@
 | 4 | レ | taxonomy-terms-order | active | available | 1.5.4 | 1.7.7 | 6.2.2 |  | [Category Order and Taxonomy Terms Order](http://www.nsp-code.com) | ー | ー |
 | 5 | レ | classic-editor | active | available | 1.6.2 | 1.6.3 | 6.2.2 | 5.2.4 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) | ー | ー |
 
+- wppvc -v
+
+| No. | name                            | status   | update    | version  | 備考 |
+| --- | ------------------------------- | -------- | --------- | -------- | ---- |
+| 1   | advanced-custom-fields          | active   | available | 4.4.12   | ー   |
+| 2   | advanced-schedule-posts         | active   | available | 1.2.1    | ー   |
+| 3   | akismet                         | inactive | available | 4.0.8    | ー   |
+| 4   | taxonomy-terms-order            | active   | available | 1.5.4    | ー   |
+| 5   | classic-editor                  | active   | available | 1.6.2    | ー   |
