@@ -1,6 +1,20 @@
 #!/usr/bin/env php
 <?php
 
+// Check for -h and -c flags
+$options = getopt("hc");
+if (isset($options['h'])) {
+    echo "Usage: script.php [-h] [-c]\n";
+    echo "  -h  Show help information\n";
+    echo "  -c Perform version check and update check\n";
+    exit(0);
+}
+
+// If -c flag is not set, exit the script
+if (!isset($options['c'])) {
+    exit(0);
+}
+
 // Execute `wp plugin list` and get the result
 exec('wp plugin list --format=json', $output, $return_var);
 
@@ -19,16 +33,18 @@ if ($plugins === null) {
     exit(1);
 }
 
-echo "| 更新対象 | name | status | update | version | 最新Ver | WP Tested | PHP ver | WP公式 | WP公式URL | 備考 |\n";
-echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n";
+echo "| No. | 更新対象 | name | status | update | version | 最新Ver | WP Tested | PHP ver | WP公式 | WP公式URL | 備考 |\n";
+echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n";
 
+$counter = 1;
 foreach ($plugins as $plugin) {
     // Fetch plugin details from WordPress API
     $response = @file_get_contents("https://api.wordpress.org/plugins/info/1.0/{$plugin['name']}.json");
 
     // If the API request fails, print the plugin info without an error message and continue with the next plugin
     if ($response === false) {
-        echo "| ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
+        echo "| {$counter} | ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
+        $counter++;
         continue;
     }
 
@@ -37,7 +53,8 @@ foreach ($plugins as $plugin) {
 
     // If the decoding fails or the plugin is not found, print the plugin info without an error message and continue with the next plugin
     if ($pluginDetails === null || isset($pluginDetails['error'])) {
-        echo "| ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
+        echo "| {$counter} | ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
+        $counter++;
         continue;
     }
 
@@ -45,10 +62,11 @@ foreach ($plugins as $plugin) {
     $updateTarget = version_compare($plugin['version'], $pluginDetails['version'], '<') ? 'レ' : ' ー ';
 
     // Prepare the output line
-    $line = "| {$updateTarget} | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ";
+    $line = "| {$counter} | {$updateTarget} | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ";
     $line .= "{$pluginDetails['version']} | {$pluginDetails['tested']} | {$pluginDetails['requires_php']} | ";
     $line .= "[{$pluginDetails['name']}]({$pluginDetails['homepage']}) | ー | ー |\n";
 
     // Print the line
     echo $line;
+    $counter++;
 }
