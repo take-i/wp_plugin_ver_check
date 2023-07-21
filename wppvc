@@ -47,7 +47,7 @@ if (!isset($options['u']) && !isset($options['v'])) {
 }
 
 // Execute `wp plugin list` and get the result
-exec('wp plugin list --format=json --fields=name,status,update,version,update_version,update_package,update_id,title,description,file,auto_update', $output, $return_var);
+exec('wp plugin list --format=json --fields=name,status,update,version,update_version,update_package,update_id,title,description,file', $output, $return_var);
 
 // If the command fails, print an error and exit
 if ($return_var !== 0) {
