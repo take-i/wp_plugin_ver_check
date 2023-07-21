@@ -3,7 +3,7 @@
 /**
  * Program: WP Plugin Version Checker (Markdown output supported)
  * File: wppvc
- * Version: 1.0.0
+ * Version: 1.0.1
  * Description: This program fetches the information of WordPress plugins installed on a server and displays them in a Markdown format. It checks for updates and provides detailed information about each plugin in a clear and easy-to-read format.
  * Author: Ishizaka Takehiko
  * Copyright: © 2023 Ishizaka Takehiko. All Rights Reserved.
