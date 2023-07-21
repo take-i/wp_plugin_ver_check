@@ -1,8 +1,9 @@
 #!/usr/bin/env php
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
+// error_reporting(E_ALL);
+// ini_set('display_errors', '1');
 
+// Check for -h, -u, and -v flags
 $options = getopt("huv");
 if (isset($options['h'])) {
     echo "Usage: script.php [-h] [-u] [-v]\n";
@@ -12,19 +13,24 @@ if (isset($options['h'])) {
     exit(0);
 }
 
+// If -u flag is not set and -v flag is not set, behave like -v
 if (!isset($options['u']) && !isset($options['v'])) {
     $options['v'] = true;
 }
 
+// Execute `wp plugin list` and get the result
 exec('wp plugin list --format=json --fields=name,status,update,version,update_version,update_package,update_id,title,description,file,auto_update', $output, $return_var);
 
+// If the command fails, print an error and exit
 if ($return_var !== 0) {
     echo "Error: Unable to execute `wp plugin list`.\n";
     exit(1);
 }
 
+// Join the output lines and decode the JSON into an array
 $plugins = json_decode(implode("\n", $output), true);
 
+// If the decoding fails, print an error and exit
 if ($plugins === null) {
     echo "Error: Unable to decode the output of `wp plugin list`.\n";
     exit(1);
@@ -47,29 +53,37 @@ if (isset($options['v'])) {
     foreach ($plugins as $plugin) {
         // Specific exception for 'hello' plugin
         $pluginName = $plugin['name'] === 'hello' && $plugin['title'] === 'Hello Dolly' ? 'hello-dolly' : $plugin['name'];
+
+        // Fetch plugin details from WordPress API
         $response = @file_get_contents("https://api.wordpress.org/plugins/info/1.0/{$pluginName}.json");
 
+        // If the API request fails, print the plugin info without an error message and continue with the next plugin
         if ($response === false) {
             echo "| {$counter} | ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
             $counter++;
             continue;
         }
 
+        // Decode the JSON response into an associative array
         $pluginDetails = json_decode($response, true);
 
+        // If the decoding fails or the plugin is not found, print the plugin info without an error message and continue with the next plugin
         if ($pluginDetails === null || isset($pluginDetails['error'])) {
             echo "| {$counter} | ー | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ー | ー | ー | ー | 公式なし | ー |\n";
             $counter++;
             continue;
         }
 
+        // Compare current version with latest version
         $updateTarget = version_compare($plugin['version'], $pluginDetails['version'], '<') ? 'レ' : ' ー ';
 
+        // Prepare the output line
         $line = "| {$counter} | {$updateTarget} | {$plugin['name']} | {$plugin['status']} | {$plugin['update']} | {$plugin['version']} | ";
         $line .= "{$pluginDetails['version']} | {$pluginDetails['tested']} | {$pluginDetails['requires_php']} | ";
         $line .= "[{$pluginDetails['name']}]({$pluginDetails['homepage']}) | ";
         $line .= "[LINK](https://wordpress.org/plugins/{$pluginDetails['slug']}/) | ー |\n";
 
+        // Print the line
         echo $line;
         $counter++;
     }
