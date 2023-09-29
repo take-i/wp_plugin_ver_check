@@ -3,7 +3,7 @@
 /**
  * Program: WP Plugin Version Checker (Markdown output supported)
  * File: wppvc
- * Version: 1.0.1
+ * Version: 1.0.2
  * Description: This program fetches the information of WordPress plugins installed on a server and displays them in a Markdown format. It checks for updates and provides detailed information about each plugin in a clear and easy-to-read format.
  * Author: Ishizaka Takehiko
  * Copyright: © 2023 Ishizaka Takehiko. All Rights Reserved.
@@ -83,7 +83,14 @@ if (isset($options['v'])) {
         $pluginName = $plugin['name'] === 'hello' && $plugin['title'] === 'Hello Dolly' ? 'hello-dolly' : $plugin['name'];
 
         // Fetch plugin details from WordPress API
-        $response = @file_get_contents("https://api.wordpress.org/plugins/info/1.0/{$pluginName}.json");
+        $contextOptions = [
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ];
+        $context = stream_context_create($contextOptions);
+        $response = @file_get_contents("https://api.wordpress.org/plugins/info/1.0/{$pluginName}.json", false, $context);
 
         // If the API request fails, print the plugin info without an error message and continue with the next plugin
         if ($response === false) {
